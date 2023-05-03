@@ -632,17 +632,7 @@ class MultipleSelect {
       this.$noResults.show()
     }
 
-    if (this.options.container) {
-      const offset = this.$drop.offset()
-      this.$drop.appendTo($(this.options.container))
-      this.$drop.offset({
-        top: offset.top,
-        left: offset.left
-      })
-        .css('min-width', 'auto')
-        .outerWidth(this.$parent.outerWidth())
-    }
-
+    // Drop the menu at edge of page -Start
     let maxHeight = this.options.maxHeight
     if (this.options.maxHeightUnit === 'row') {
       maxHeight = this.$drop.find('>ul>li').first().outerHeight() *
@@ -650,6 +640,30 @@ class MultipleSelect {
     }
     this.$drop.find('>ul').css('max-height', `${maxHeight}px`)
     this.$drop.find('.multiple').css('width', `${this.options.multipleWidth}px`)
+
+    const offset = this.$drop.offset()
+    const pageWidth = $('body').width()
+    const dropWidth = this.$drop[0].offsetWidth
+    const outerWidth = dropWidth > pageWidth ? pageWidth : dropWidth
+    const left = offset.left + outerWidth < pageWidth ? offset.left : pageWidth - outerWidth
+    if (this.options.container) {
+      this.$drop.appendTo($(this.options.container))
+      this.$drop.offset({
+        top: offset.top,
+        left: left
+      })
+        .css('min-width', 'auto')
+        .outerWidth(this.$parent.outerWidth())
+    }
+    else if (left !== offset.left) {
+      this.$drop.offset({
+        left: left
+      })
+    }
+    if (dropWidth !== outerWidth) {
+      this.$drop.outerWidth(outerWidth)
+    }
+    // Drop the menu at edge of page -End
 
     if (this.data.length && this.options.filter) {
       this.$searchInput.val('')
@@ -671,6 +685,14 @@ class MultipleSelect {
         'left': 'auto'
       })
     }
+    // Drop the menu at edge of page -Start
+    else {
+      this.$drop.css({
+        'left': ''
+      })
+    }
+    this.$drop.outerWidth('')
+    // Drop the menu at edge of page -End
     this.options.onClose()
   }
 
